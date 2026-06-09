@@ -1,0 +1,369 @@
+/* ============================================================
+   Dr. Ardeleanu — Contract — MOBILE presentation layer
+   Loads AFTER wiki.css + fields.css. Overrides desktop chrome.
+   Text of the contract is untouched (1:1). Read-only.
+   ============================================================ */
+
+:root {
+  --m-top-h: 56px;
+  --m-read: 640px;        /* reading column cap (looks like a phone on desktop) */
+  --m-pad: 22px;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-size: 18px;
+  line-height: 1.78;
+  background: var(--paper);
+  padding-bottom: 0;
+}
+
+/* Hide all the desktop chrome that wiki/fields inject or markup carries */
+.masthead, .scrim.desktop, #doctools, .grila-toolbar { display: none !important; }
+
+/* ============================================================
+   Top bar
+   ============================================================ */
+.m-top {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: var(--m-top-h);
+  padding: 0 12px;
+  background: rgba(250,247,243,0.94);
+  backdrop-filter: saturate(150%) blur(10px);
+  -webkit-backdrop-filter: saturate(150%) blur(10px);
+  border-bottom: 1px solid var(--rule);
+}
+.m-top .m-iconbtn {
+  flex: 0 0 auto;
+  width: 44px; height: 44px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: none;
+  color: var(--oxblood);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .14s, border-color .14s;
+}
+.m-top .m-iconbtn:active { background: var(--tint); border-color: var(--tint-line); }
+.m-top .m-iconbtn svg { width: 22px; height: 22px; }
+.m-top .m-logo { height: 28px; width: auto; display: block; }
+.m-top .m-brand {
+  display: flex; flex-direction: column; justify-content: center;
+  min-width: 0; flex: 1 1 auto; line-height: 1.1;
+}
+.m-top .m-brand .bt {
+  font-family: var(--sans);
+  font-size: 13px; font-weight: 700; color: var(--oxblood);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.m-top .m-brand .bs {
+  font-family: var(--sans);
+  font-size: 10.5px; letter-spacing: .04em; color: var(--ink-soft);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.m-top .m-brand .bv {
+  display: none;
+  font-family: var(--sans);
+  font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--oxblood-soft);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* reading progress bar — sits exactly under the top bar */
+#readbar {
+  position: fixed;
+  top: var(--m-top-h);
+  height: 3px;
+  background: linear-gradient(90deg, var(--oxblood), var(--oxblood-soft));
+  z-index: 49;
+}
+
+/* ============================================================
+   Search row (slides open under the top bar)
+   ============================================================ */
+.m-searchrow {
+  position: sticky;
+  top: var(--m-top-h);
+  z-index: 48;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .22s ease;
+}
+body.m-search-open .m-searchrow { max-height: 70px; }
+.m-searchrow .wrap { padding: 9px 12px; }
+.m-searchrow input {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 16px;          /* 16px avoids iOS zoom-on-focus */
+  padding: 11px 14px 11px 40px;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%239b8f86' stroke-width='2' stroke-linecap='round'><circle cx='11' cy='11' r='7'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>") 12px center no-repeat;
+  color: var(--ink);
+  outline: none;
+}
+.m-searchrow input:focus {
+  border-color: var(--oxblood-soft);
+  box-shadow: 0 0 0 3px var(--tint);
+}
+
+/* ============================================================
+   Reading column
+   ============================================================ */
+.m-shell {
+  max-width: var(--m-read);
+  margin: 0 auto;
+  background: var(--col);
+  min-height: 100vh;
+  border-left: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+}
+.article {
+  max-width: none;
+  margin: 0;
+  padding: 0 var(--m-pad) 96px;
+}
+
+/* Title block — tighter top, larger breathing room */
+.doc-head { padding: 30px 0 22px; }
+.doc-title { font-size: clamp(27px, 8vw, 34px); line-height: 1.1; }
+.doc-kicker { font-size: 11px; }
+.doc-sub { font-size: 15px; }
+
+/* Chapters */
+.chapter { padding-top: 26px; scroll-margin-top: calc(var(--m-top-h) + 14px); }
+.chapter > h2 {
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 21px;
+  line-height: 1.22;
+  margin: 10px 0 6px;
+  padding-bottom: 11px;
+}
+.chapter > h2 .cnum { font-size: 11px; padding: 4px 9px; }
+.chapter > h2 .ctitle { flex: 1 1 100%; }
+
+h3.sub-h { font-size: 17px; margin: 26px 0 6px; scroll-margin-top: calc(var(--m-top-h) + 14px); }
+h4.subsub {
+  font-family: var(--sans); font-size: 14.5px; font-weight: 700; letter-spacing: .01em;
+  color: var(--oxblood); margin: 24px 0 6px; padding-bottom: 5px;
+  border-bottom: 1px solid var(--tint-line);
+  scroll-margin-top: calc(var(--m-top-h) + 14px);
+}
+h4.subsub .ssn { font-family: var(--sans); font-size: 12px; font-weight: 700; color: var(--ink-soft); margin-right: 10px; letter-spacing: .04em; }
+
+.chapter p { margin: 13px 0; }
+
+/* Clause numbering — give the Art. label room on small screens */
+ol.clauses { margin: 16px 0; }
+ol.clauses > li { margin: 14px 0; }
+.artno { display: inline-block; font-size: .82em; margin-right: 6px; }
+
+ul.sub-list { padding-left: 20px; }
+ul.sub-list li { margin: 7px 0; }
+
+/* anchored list items clear the sticky bar */
+li[id], .clinics-box, #anexa-1 table, .signatures { scroll-margin-top: calc(var(--m-top-h) + 14px); }
+
+/* ============================================================
+   Cross-references → tappable pills
+   ============================================================ */
+.xref {
+  display: inline;
+  border-bottom: none;
+  background: var(--tint);
+  color: var(--oxblood);
+  font-weight: 600;
+  font-size: 0.82em;
+  border-radius: 5px;
+  padding: 1px 5px;
+  margin: 0 1px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.xref:active { background: var(--tint-line); }
+/* email / external links keep pill too */
+a[href^="mailto:"].xref, a[href^="http"].xref { white-space: normal; }
+
+/* ============================================================
+   Read-only fill blanks (mobile.js converts underscore runs)
+   ============================================================ */
+.fill-ro {
+  display: inline;
+  padding: 0 6px;
+  border-radius: 3px;
+  font-family: var(--sans);
+  font-size: .9em;
+  font-style: italic;
+  color: var(--oxblood-soft);
+  background: #fbf4ec;
+  box-shadow: inset 0 -1.5px 0 var(--blank);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.fill-ro::before { content: attr(data-label); }
+
+/* ============================================================
+   Tables (grila + clinic table) — read-only, responsive
+   ============================================================ */
+.m-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 16px 0; }
+.m-table-scroll table.grila,
+.m-table-scroll table.clinic-table { margin: 0; min-width: 100%; }
+
+/* show ALL manopere rows read-only; hide the Include/checkbox column */
+table.grila.selectable .pick-col { display: none !important; }
+table.grila.selectable tbody tr[data-opt] { display: table-row !important; opacity: 1 !important; }
+table.grila.selectable tbody tr[data-opt]:not(.on) { display: table-row !important; }
+tr.grila-empty { display: none !important; }
+
+table.grila th, table.grila td,
+.clinic-table th, .clinic-table td { padding: 9px 10px; font-size: 15px; }
+table.grila td:last-child, table.grila th:last-child { font-size: 14px; }
+
+/* DRA clinic codes box already stacks < 640 via fields.css */
+
+/* ============================================================
+   Signatures — single column on phone
+   ============================================================ */
+.signatures { grid-template-columns: 1fr; gap: 22px; }
+
+/* ============================================================
+   Left drawer (Cuprins)
+   ============================================================ */
+.m-drawer {
+  position: fixed;
+  top: 0; left: 0;
+  width: min(86vw, 360px);
+  height: 100%;
+  background: var(--paper);
+  border-right: 1px solid var(--rule);
+  z-index: 70;
+  transform: translateX(-105%);
+  transition: transform .26s cubic-bezier(.4,0,.2,1);
+  display: flex; flex-direction: column;
+  box-shadow: 0 24px 60px rgba(40,20,12,.22);
+  font-family: var(--sans);
+}
+body.m-nav-open .m-drawer { transform: translateX(0); }
+.m-drawer-head {
+  display: flex; align-items: center; justify-content: space-between;
+  height: var(--m-top-h);
+  padding: 0 10px 0 20px;
+  border-bottom: 1px solid var(--rule);
+  flex: 0 0 auto;
+}
+.m-drawer-head .dh-title {
+  font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--oxblood); font-weight: 700;
+}
+.m-drawer-close {
+  width: 40px; height: 40px; border: none; background: none;
+  color: var(--ink-soft); cursor: pointer; border-radius: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.m-drawer-close:active { background: var(--rule-soft); }
+.m-drawer-close svg { width: 20px; height: 20px; }
+
+.m-drawer ol#toc-list {
+  list-style: none; margin: 0; padding: 10px 12px 40px;
+  overflow-y: auto; flex: 1 1 auto;
+  -webkit-overflow-scrolling: touch;
+}
+.m-drawer #toc-list li { margin: 0; }
+.m-drawer #toc-list a {
+  display: block; text-decoration: none;
+  color: var(--ink); font-size: 15px; line-height: 1.3;
+  padding: 12px 12px 12px 14px;
+  border-left: 3px solid transparent;
+  border-radius: 0 8px 8px 0;
+  min-height: 44px;
+  display: flex; align-items: center;
+}
+.m-drawer #toc-list a .num {
+  color: var(--oxblood-soft); font-weight: 700; margin-right: 10px;
+  font-variant-numeric: tabular-nums; min-width: 24px;
+}
+.m-drawer #toc-list a:active { background: var(--rule-soft); }
+.m-drawer #toc-list a.active {
+  color: var(--oxblood); background: var(--tint);
+  border-left-color: var(--oxblood); font-weight: 700;
+}
+.m-drawer #toc-list a.active .num { color: var(--oxblood); }
+.m-drawer #toc-list .sub a { padding-left: 30px; font-size: 14px; color: var(--ink-soft); }
+.m-drawer #toc-list li.has-sub { position: relative; }
+.m-drawer #toc-list .toc-caret {
+  position: absolute; top: 6px; right: 6px;
+  width: 36px; height: 36px; padding: 0; border: none; background: none;
+  cursor: pointer; color: var(--ink-faint); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+.m-drawer #toc-list .toc-caret::before { content: "\25BE"; font-size: 12px; transition: transform .15s; }
+.m-drawer #toc-list li.collapsed .toc-caret::before { transform: rotate(-90deg); }
+.m-drawer #toc-list li.collapsed > ol.sub { display: none; }
+.m-drawer #toc-list ol.sub { list-style: none; margin: 0; padding: 0; }
+
+.m-scrim {
+  position: fixed; inset: 0;
+  background: rgba(20,15,12,.4);
+  z-index: 65; opacity: 0; pointer-events: none;
+  transition: opacity .26s;
+}
+body.m-nav-open .m-scrim { opacity: 1; pointer-events: auto; }
+
+/* ============================================================
+   Floating thumb-zone nav (Cuprins + Sus)
+   ============================================================ */
+.m-fab {
+  position: fixed;
+  right: 14px; bottom: 16px;
+  z-index: 55;
+  display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
+  font-family: var(--sans);
+  opacity: 0; transform: translateY(14px); pointer-events: none;
+  transition: opacity .2s, transform .2s;
+}
+body.m-scrolled .m-fab { opacity: 1; transform: none; pointer-events: auto; }
+.m-fab button {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 46px; padding: 0 18px;
+  border-radius: 999px;
+  font-size: 13.5px; font-weight: 700; letter-spacing: .01em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 8px 24px rgba(60,30,20,.22);
+  border: 1px solid var(--oxblood);
+}
+.m-fab .fab-toc { background: #fff; color: var(--oxblood); border-color: var(--rule); }
+.m-fab .fab-toc:active { background: var(--tint); }
+.m-fab .fab-top { background: var(--oxblood); color: #fff; }
+.m-fab .fab-top:active { background: var(--oxblood-dark); }
+.m-fab button svg { width: 17px; height: 17px; }
+
+/* ============================================================
+   Search highlight + empty state
+   ============================================================ */
+mark.hit { background: #ffe9a8; color: inherit; border-radius: 2px; padding: 0 1px; }
+.no-result { font-family: var(--sans); color: var(--ink-soft); padding: 14px 0; font-size: 15px; }
+
+/* ============================================================
+   Print (phone → PDF still clean)
+   ============================================================ */
+@media print {
+  .m-top, .m-searchrow, .m-drawer, .m-scrim, .m-fab, #readbar { display: none !important; }
+  .m-shell { max-width: none; border: none; }
+  .article { padding: 0; }
+  .xref { background: none !important; color: inherit !important; padding: 0 !important; }
+  .fill-ro { background: none !important; box-shadow: none !important; color: #000 !important; border-bottom: 1px solid #000; }
+  body { font-size: 11pt; }
+}

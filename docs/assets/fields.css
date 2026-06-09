@@ -1,0 +1,362 @@
+/* ============================================================
+   Fillable fields + document tools  (runtime layer, no text change)
+   ============================================================ */
+
+/* reading progress */
+#readbar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--oxblood), var(--oxblood-soft));
+  z-index: 60; transition: width .08s linear;
+}
+
+/* fill fields */
+.fill {
+  display: inline;
+  min-width: 56px;
+  padding: 1px 6px 0;
+  border-radius: 3px;
+  outline: none;
+  font-family: var(--sans);
+  font-size: 0.92em;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  cursor: text;
+  transition: background .12s, box-shadow .12s;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+/* empty state — amber, shows hint */
+.fill:not(.filled) {
+  background: #fdf6e7;
+  box-shadow: inset 0 -2px 0 #e0b54a;
+  color: transparent;
+}
+.fill:not(.filled)::before {
+  content: attr(data-label);
+  color: #ad7d18;
+  font-size: 11px;
+  letter-spacing: .02em;
+  font-style: italic;
+}
+/* filled state — clean underline */
+.fill.filled {
+  background: transparent;
+  box-shadow: inset 0 -1px 0 var(--ink-soft);
+  color: var(--oxblood-dark);
+  font-weight: 600;
+}
+.fill:focus {
+  background: #fff8e8;
+  box-shadow: inset 0 -2px 0 var(--oxblood), 0 0 0 3px var(--tint);
+  color: var(--ink);
+}
+.fill:focus::before { content: ""; }
+/* when highlight toggled off */
+body.no-hl .fill:not(.filled) { background: transparent; box-shadow: inset 0 -1px 0 var(--blank); }
+body.no-hl .fill:not(.filled)::before { color: var(--blank); }
+
+/* toolbar */
+#doctools {
+  position: fixed; right: 22px; bottom: 22px; z-index: 55;
+  display: flex; flex-direction: column; gap: 10px; align-items: stretch;
+  font-family: var(--sans);
+}
+#doctools .progress {
+  background: #fff; border: 1px solid var(--rule); border-radius: 12px;
+  padding: 12px 14px; box-shadow: 0 8px 28px rgba(60,30,20,.14);
+  min-width: 188px;
+}
+#doctools .progress .ring-wrap { display:flex; align-items:center; gap:11px; }
+#doctools svg.ring { width: 40px; height: 40px; flex: 0 0 auto; }
+#doctools .ring .bg { stroke: var(--rule); }
+#doctools .ring .fg { stroke: var(--oxblood); transition: stroke-dashoffset .3s; stroke-linecap: round; }
+#doctools .ring text { font-size: 11px; font-weight: 700; fill: var(--oxblood); font-family: var(--sans); }
+#doctools .progress .lbl { font-size: 12px; line-height: 1.3; color: var(--ink-soft); }
+#doctools .progress .lbl b { color: var(--ink); display:block; font-size: 13px; }
+#doctools.done .ring .fg { stroke: #1f8a4c; }
+#doctools.done .ring text { fill: #1f8a4c; }
+
+#doctools .btns { display: flex; gap: 8px; }
+#doctools button {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: var(--sans); font-size: 12px; font-weight: 600; color: var(--ink);
+  background: #fff; border: 1px solid var(--rule); border-radius: 10px;
+  padding: 9px 10px; cursor: pointer; transition: background .12s, border-color .12s, color .12s;
+  box-shadow: 0 4px 14px rgba(60,30,20,.08);
+}
+#doctools button:hover { border-color: var(--oxblood-soft); color: var(--oxblood); background: var(--tint); }
+#doctools button.primary { background: var(--oxblood); color: #fff; border-color: var(--oxblood); }
+#doctools button.primary:hover { background: var(--oxblood-dark); color: #fff; }
+#doctools button svg { width: 15px; height: 15px; }
+#doctools .btns { flex-wrap: wrap; }
+#doctools #dt-next { flex: 1 1 100%; }
+#doctools #dt-print, #doctools #dt-save, #doctools #dt-restore, #doctools #dt-clear { flex: 1 1 0; }
+.saved-pill {
+  display: none; margin-top: 9px; text-align: center;
+  font-family: var(--sans); font-size: 11.5px; font-weight: 700; color: #1f8a4c;
+  background: #e8f3ec; border: 1px solid #bfe0cd; border-radius: 8px; padding: 5px 8px;
+  animation: savedfade .2s ease;
+}
+.saved-pill.on { display: block; }
+@keyframes savedfade { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 720px) {
+  #doctools { right: 12px; bottom: 12px; left: 12px; }
+  #doctools .progress { min-width: 0; }
+}
+
+/* print */
+@media print {
+  #doctools, #readbar { display: none !important; }
+  .fill { background: transparent !important; box-shadow: none !important; border-bottom: 1px solid #000; color: #000 !important; font-weight: 600; padding: 0 4px; }
+  .fill:not(.filled) { min-width: 120px; }
+  .fill:not(.filled)::before { content: ""; }
+  .xref { color: inherit !important; border-bottom: none !important; }
+}
+
+/* ===== article numbers + cross-references (contract only) ===== */
+.artno {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: .8em;
+  color: var(--oxblood);
+  margin-right: 7px;
+  white-space: nowrap;
+  letter-spacing: .01em;
+}
+/* explicit Art. labels replace the auto-counter */
+ol.clauses:has(.artno) > li { padding-left: 0; }
+ol.clauses:has(.artno) > li::before,
+ol.clauses:has(.artno) > li::after { display: none; }
+
+.xref {
+  color: #7B1C16;
+  text-decoration: none;
+  border-bottom: 1px dotted #9a3b34;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.xref:hover { background: #f6ece9; border-bottom-color: #7B1C16; }
+.xref:focus { outline: 2px solid #9a3b34; outline-offset: 2px; border-radius: 2px; }
+li[id] { scroll-margin-top: 90px; }
+
+/* recital list (AVÂND ÎN VEDERE CĂ) — capital letters */
+.article ol.alpha { list-style: upper-latin; }
+
+/* lettered sub-points inside a clause (a, b, c) */
+ol.sub-alpha { list-style: lower-latin; padding-left: 26px; margin: 9px 0; }
+ol.sub-alpha > li { margin: 6px 0; padding-left: 4px; }
+ol.sub-alpha > li::marker { color: var(--oxblood-soft); font-weight: 700; }
+
+/* clinics box inside Cap. I (points of work + DRA codes) — compact */
+.clinics-box {
+  border: 1px solid var(--tint-line);
+  border-left: 3px solid var(--oxblood);
+  background: #fffdfb;
+  border-radius: 0 6px 6px 0;
+  padding: 11px 15px;
+  margin: 16px 0;
+  scroll-margin-top: 90px;
+}
+.clinics-box-title {
+  font-family: var(--sans); font-size: 11.5px; letter-spacing: .06em;
+  text-transform: uppercase; font-weight: 700; color: var(--oxblood); margin-bottom: 8px;
+}
+.cb-sub { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--ink-soft); font-size: 11px; }
+.clinic-line { display: flex; align-items: baseline; gap: 7px; margin: 5px 0; }
+.cg-grp { flex: 0 0 188px; font-family: var(--sans); font-size: 11px; font-weight: 700; color: var(--oxblood-dark); }
+.cg-list { display: flex; flex-wrap: wrap; gap: 5px 7px; flex: 1 1 auto; min-width: 0; }
+.cg { font-family: var(--sans); font-size: 12px; color: var(--ink); background: var(--tint); border: 1px solid var(--tint-line); border-radius: 6px; padding: 1px 8px; white-space: nowrap; }
+.cg b { color: var(--oxblood); font-weight: 700; }
+.cb-note { font-size: 11.5px; color: var(--ink-soft); margin: 9px 0 0; font-style: italic; }
+@media (max-width: 640px){ .clinic-line { flex-direction: column; gap: 4px; } .cg-grp { flex: 0 0 auto; } }
+
+/* grila de remunerare (Anexa 1) */
+table.grila { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 15px; }
+table.grila th, table.grila td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.grila thead th {
+  font-family: var(--sans); font-size: 11.5px; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--ink-soft); border-bottom: 2px solid var(--rule);
+}
+table.grila tbody tr:hover { background: var(--rule-soft); }
+table.grila td:first-child { font-weight: 600; }
+
+
+/* ---- Anexa 1: value column + selectable manopere ---- */
+table.grila td:last-child, table.grila th:last-child { text-align: right; white-space: nowrap; font-family: var(--sans); }
+table.grila td:last-child { font-weight: 600; color: var(--ink); }
+table.grila.selectable tbody td:nth-child(2) { font-weight: 600; }
+table.grila .pick-col { width: 70px; text-align: center; }
+table.grila th.pick-col { font-size: 10.5px; }
+table.grila .pick-col input { width: 17px; height: 17px; accent-color: var(--oxblood); cursor: pointer; vertical-align: middle; }
+/* preview mode (default): checkboxes hidden, only selected rows shown */
+table.grila.selectable .pick-col { display: none; }
+table.grila.selectable tbody tr[data-opt]:not(.on) { display: none; }
+/* edit mode (toggled on #anexa-1): show all rows + checkboxes */
+#anexa-1.grid-editing table.grila.selectable .pick-col { display: table-cell; }
+#anexa-1.grid-editing table.grila.selectable tbody tr[data-opt] { display: table-row; }
+#anexa-1.grid-editing table.grila.selectable tbody tr[data-opt]:not(.on) { opacity: .42; }
+#anexa-1.grid-editing table.grila.selectable tbody tr[data-opt]:not(.on):hover { opacity: .85; }
+#anexa-1.grid-editing table.grila.selectable tbody tr.on { background: #fbf3ee; }
+/* empty-state placeholder */
+tr.grila-empty { display: none; }
+tr.grila-empty td { color: var(--ink-soft); font-style: italic; font-family: var(--sans); font-size: 13px; background: #fffaf3; text-align: left !important; font-weight: 400 !important; }
+table.grila.selectable.is-empty tbody tr.grila-empty { display: table-row; }
+#anexa-1.grid-editing table.grila.selectable.is-empty tbody tr.grila-empty { display: none; }
+/* toolbar */
+.grila-toolbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 16px 0 6px; padding: 11px 14px; background: var(--tint); border: 1px solid var(--tint-line); border-radius: 8px; }
+#grila-edit-toggle { display: inline-flex; align-items: center; gap: 7px; font-family: var(--sans); font-size: 12.5px; font-weight: 600; color: #fff; background: var(--oxblood); border: 1px solid var(--oxblood); border-radius: 8px; padding: 8px 13px; cursor: pointer; transition: background .12s, color .12s; }
+#grila-edit-toggle svg { width: 15px; height: 15px; }
+#grila-edit-toggle:hover { background: var(--oxblood-dark); }
+#grila-edit-toggle[aria-pressed="true"] { background: #fff; color: var(--oxblood); }
+.grila-hint { font-family: var(--sans); font-size: 12px; color: var(--ink-soft); line-height: 1.4; flex: 1 1 240px; }
+.grila-hint b { color: var(--oxblood); font-weight: 700; }
+
+/* per-row role choice (Anexa 1.A): de bază / secundară */
+.role-cell .rol-opt {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-right: 12px;
+  font-family: var(--sans); font-size: 12.5px; color: var(--ink-soft);
+  cursor: pointer; -webkit-user-select: none; user-select: none;
+}
+.role-cell .rol-opt input {
+  -webkit-appearance: none; appearance: none;
+  width: 14px; height: 14px; margin: 0;
+  border: 1.5px solid var(--oxblood-soft); border-radius: 50%;
+  position: relative; cursor: pointer; flex: 0 0 auto;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.role-cell .rol-opt input:checked { border-color: var(--oxblood); }
+.role-cell .rol-opt input:checked::after {
+  content: ""; position: absolute; inset: 2.5px;
+  border-radius: 50%; background: var(--oxblood);
+}
+.role-cell .rol-opt input:checked + span { color: var(--oxblood); font-weight: 700; }
+
+/* Anexa 2 — variant chooser (reținere din comision / fără) */
+.variant-opts { display: grid; gap: 10px; margin-top: 8px; }
+.variant-opts .var-opt {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-family: var(--sans); font-size: 13.5px; line-height: 1.5; color: var(--ink);
+  cursor: pointer;
+}
+.variant-opts .var-opt input {
+  -webkit-appearance: none; appearance: none;
+  width: 15px; height: 15px; margin: 3px 0 0; flex: 0 0 auto;
+  border: 1.5px solid var(--oxblood-soft); border-radius: 50%;
+  position: relative; cursor: pointer;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.variant-opts .var-opt input:checked { border-color: var(--oxblood); }
+.variant-opts .var-opt input:checked::after {
+  content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--oxblood);
+}
+.variant-opts .var-opt input:checked + span { color: var(--oxblood-dark); }
+
+/* Anexa 2 — auto-computed monthly amount */
+.calc-hint { font-family: var(--sans); font-size: 11.5px; color: var(--ink-faint); font-style: italic; }
+.calc-row td { background: #fbf3ee; }
+#a2-monthly { color: var(--oxblood); font-variant-numeric: tabular-nums; }
+
+/* invalid date format feedback */
+.fill.fill-invalid {
+  color: #b3261e !important;
+  background: #fdeceb !important;
+  box-shadow: inset 0 -2px 0 #b3261e;
+  border-radius: 2px;
+}
+.calc-date { font-variant-numeric: tabular-nums; color: var(--oxblood); font-family: var(--sans); font-weight: 600; }
+
+/* ============================================================
+   Anexa 1 — remuneration-TYPE selector (confidentiality split)
+   Sections marked .remun-off are hidden everywhere except in
+   edit mode (where they show dimmed so the admin can re-enable).
+   ============================================================ */
+.remun-selector {
+  display: none;                 /* shown only in edit mode */
+  margin: 18px 0 8px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid var(--tint-line);
+  border-left: 4px solid var(--oxblood);
+  border-radius: 0 6px 6px 0;
+}
+#anexa-1.grid-editing .remun-selector { display: block; }
+.remun-selector .rs-head {
+  font-family: var(--sans); font-size: 12px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--oxblood);
+  margin-bottom: 5px;
+}
+.remun-selector .rs-hint {
+  font-family: var(--sans); font-size: 12px; color: var(--ink-soft);
+  line-height: 1.45; margin-bottom: 12px;
+}
+.remun-selector .rs-hint b { color: var(--oxblood); }
+.remun-selector .rs-opts { display: grid; gap: 8px; }
+.remun-selector .rs-opts label {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--sans); font-size: 13.5px; font-weight: 600; color: var(--ink);
+  padding: 9px 12px; border: 1px solid var(--rule); border-radius: 8px;
+  cursor: pointer; transition: background .12s, border-color .12s;
+}
+.remun-selector .rs-opts label:hover { background: var(--tint); }
+.remun-selector .rs-opts input { width: 17px; height: 17px; accent-color: var(--oxblood); cursor: pointer; }
+
+/* hidden section (default — screen + print) */
+.remun-section.remun-off { display: none; }
+/* in edit mode, reveal off-sections dimmed, with an "excluded" tag */
+#anexa-1.grid-editing .remun-section.remun-off { display: block; opacity: .4; position: relative; }
+#anexa-1.grid-editing .remun-section.remun-off::before {
+  content: "Exclus pentru acest Prestator";
+  display: inline-block; font-family: var(--sans); font-size: 11px; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--oxblood);
+  background: var(--tint); border: 1px solid var(--tint-line); border-radius: 999px;
+  padding: 3px 11px; margin: 10px 0 0;
+}
+
+@media print {
+  .grila-toolbar { display: none !important; }
+  table.grila .pick-col { display: none !important; }
+  table.grila.selectable tbody tr[data-opt]:not(.on) { display: none !important; }
+  tr.grila-empty { display: none !important; }
+  .remun-selector { display: none !important; }
+  .remun-section.remun-off { display: none !important; }
+  /* each annex starts on its own page */
+  .annex-divider { page-break-before: always; break-before: page; }
+  #anexa-2 { page-break-before: always; break-before: page; }
+}
+
+/* ============================================================
+   Mod administrator (Anexa 1) — ascunde editarea pentru medic
+   Bara de editare (intrarea în edit mode, care dezvăluie
+   selectorul de tipuri + toate manoperele) e vizibilă DOAR în
+   modul administrator. Medicul vede doar ce a stabilit admin-ul.
+   ============================================================ */
+body:not(.admin-on) .grila-toolbar { display: none !important; }
+
+.remun-empty-note {
+  display: none;
+  font-family: var(--sans); font-size: 13.5px; color: var(--ink-soft); font-style: italic;
+  background: #fffaf3; border: 1px dashed var(--tint-line); border-radius: 8px;
+  padding: 14px 16px; margin: 16px 0;
+}
+body:not(.admin-on):not(.has-remun) .remun-empty-note { display: block; }
+
+#admin-toggle {
+  position: fixed; left: 18px; bottom: 18px; z-index: 120;
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--sans); font-size: 12.5px; font-weight: 600;
+  color: var(--ink-soft); background: #fff;
+  border: 1px solid var(--rule); border-radius: 999px; padding: 9px 14px;
+  box-shadow: 0 6px 18px rgba(90,21,15,.1); cursor: pointer;
+  transition: color .15s, border-color .15s, background .15s;
+}
+#admin-toggle svg { width: 15px; height: 15px; flex: 0 0 auto; }
+#admin-toggle:hover { border-color: var(--oxblood-soft); color: var(--oxblood); }
+#admin-toggle.on { background: var(--oxblood); color: #fff; border-color: var(--oxblood); }
+@media (max-width: 720px) {
+  /* on phones #doctools becomes a full-width bottom bar — move the
+     admin button up under the header so they don't overlap */
+  #admin-toggle { top: 66px; bottom: auto; left: 12px; right: auto; padding: 7px 11px; font-size: 11.5px; }
+}
+@media print { #admin-toggle { display: none !important; } }

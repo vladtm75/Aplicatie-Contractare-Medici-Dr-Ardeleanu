@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ro"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panou administrator · Dr. Ardeleanu</title>
+<link rel="stylesheet" href="assets/wiki.css">
+<style>
+  body { background: var(--paper); }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 30px 24px 90px; }
+  .lead { font-family: var(--sans); font-size: 15px; color: var(--ink-soft); line-height: 1.55; margin: 0 0 26px; }
+  .card {
+    background: var(--col); border: 1px solid var(--tint-line); border-radius: 14px;
+    padding: 22px 22px; margin-bottom: 18px; box-shadow: 0 10px 30px rgba(90,21,15,.06);
+  }
+  .card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .card-head .ic { width: 40px; height: 40px; border-radius: 10px; background: var(--tint); color: var(--oxblood); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+  .card-head .ic svg { width: 21px; height: 21px; }
+  .card-head h2 { font-family: var(--sans); font-size: 17px; font-weight: 700; color: var(--oxblood-dark); margin: 0; }
+  .card .sub { font-family: var(--sans); font-size: 13.5px; color: var(--ink-soft); line-height: 1.5; margin: 0 0 16px; }
+  .state { display: inline-flex; align-items: center; gap: 8px; font-family: var(--sans); font-size: 13px; font-weight: 700; border-radius: 999px; padding: 6px 13px; }
+  .state.on { color: var(--ok, #1f7a4d); background: #e8f3ec; border: 1px solid #bfe0cd; }
+  .state.off { color: var(--ink-soft); background: #f1ece6; border: 1px solid var(--rule); }
+  .state svg { width: 15px; height: 15px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+  input.pass {
+    font-family: var(--sans); font-size: 15px; color: var(--ink); background: #fff;
+    border: 1px solid var(--tint-line); border-radius: 9px; padding: 10px 13px; min-width: 200px; flex: 1;
+  }
+  input.pass:focus { outline: none; border-color: var(--oxblood-soft); box-shadow: 0 0 0 3px var(--tint); }
+  button.btn {
+    font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer;
+    border: 1px solid var(--oxblood); border-radius: 9px; padding: 10px 18px; background: var(--oxblood); color: #fff;
+    display: inline-flex; align-items: center; gap: 8px; transition: background .15s, border-color .15s, color .15s;
+  }
+  button.btn:hover { background: var(--oxblood-dark); }
+  button.btn.ghost { background: var(--col); color: var(--oxblood); border-color: var(--tint-line); }
+  button.btn.ghost:hover { background: var(--tint); border-color: var(--oxblood-soft); }
+  button.btn svg { width: 16px; height: 16px; }
+  button.btn[disabled] { opacity: .5; cursor: not-allowed; }
+  .note { font-family: var(--sans); font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; margin-top: 14px; padding: 12px 14px; background: #fbf7f2; border: 1px dashed var(--tint-line); border-radius: 10px; }
+  .note b { color: var(--oxblood); }
+  .enables { font-family: var(--sans); font-size: 13px; color: var(--ink); margin: 14px 0 0; padding-left: 0; list-style: none; }
+  .enables li { display: flex; gap: 9px; align-items: flex-start; margin: 7px 0; }
+  .enables svg { width: 16px; height: 16px; color: var(--ok, #1f7a4d); flex: 0 0 auto; margin-top: 1px; }
+  .muted-card { opacity: .55; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <img class="logo" src="assets/logo-ardeleanu.png" alt="Dr. Ardeleanu Dental Clinics">
+  <span class="mast-divider"></span>
+  <span class="mast-title"><b>Panou administrator</b>Rețeaua de Clinici Dr. Ardeleanu</span>
+  <span class="mast-spacer"></span>
+  <a class="mast-home" href="index.html" aria-label="Acasă — meniul principal">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    <span class="mh-label">Acasă</span>
+  </a>
+</header>
+
+<main class="wrap">
+  <p class="lead">Control central pentru administratorul aplicației: autentificare și conectarea la Google Drive. Schimbările se aplică în toată aplicația, pe acest dispozitiv.</p>
+
+  <!-- Autentificare -->
+  <section class="card" id="auth-card">
+    <div class="card-head">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>
+      <h2>Autentificare administrator</h2>
+    </div>
+    <p class="sub">Deblochează funcțiile rezervate administratorului (Loredana).</p>
+    <div id="auth-body"></div>
+  </section>
+
+  <!-- Google Drive -->
+  <section class="card" id="drive-card">
+    <div class="card-head">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12.7 16.8 3.6a1 1 0 0 0-.86-.5H8.06a1 1 0 0 0-.86.5"></path><path d="M2 12.7 7.2 3.6"></path><path d="m7.2 20.9 5.2-8.2H22"></path><path d="M2 12.7h10.4L7.2 20.9"></path></svg></span>
+      <h2>Google Drive</h2>
+    </div>
+    <p class="sub">Conectează contul Google în care se salvează dosarele și documentele medicilor.</p>
+    <div id="drive-body"></div>
+  </section>
+</main>
+
+<script src="assets/admin.js?v=2"></script>
+<script src="assets/drive.js?v=2"></script>
+<script>
+(function () {
+  var authBody = document.getElementById("auth-body");
+  var driveBody = document.getElementById("drive-body");
+  var driveCard = document.getElementById("drive-card");
+
+  var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+  function renderAuth() {
+    var a = ArdAdmin.isAdmin();
+    if (a) {
+      authBody.innerHTML =
+        '<span class="state on">' + CHECK + ' Mod administrator ACTIV</span>' +
+        '<ul class="enables">' +
+          '<li>' + CHECK + ' Editarea tipurilor de remunerare și a grilei din Anexa 1 devine vizibilă.</li>' +
+          '<li>' + CHECK + ' Conectarea la Google Drive este permisă.</li>' +
+        '</ul>' +
+        '<div class="row"><button class="btn ghost" id="lock-btn">Blochează (ieși din administrator)</button></div>';
+      document.getElementById("lock-btn").addEventListener("click", function () { ArdAdmin.setAdmin(false); renderAll(); });
+    } else {
+      authBody.innerHTML =
+        '<span class="state off">Mod administrator inactiv</span>' +
+        '<div class="row"><input class="pass" id="pass" type="password" placeholder="Cod administrator" autocomplete="off"><button class="btn" id="unlock-btn">Deblochează</button></div>';
+      var inp = document.getElementById("pass");
+      function tryUnlock() {
+        if (ArdAdmin.check(inp.value)) { ArdAdmin.setAdmin(true); renderAll(); }
+        else { inp.value = ""; inp.placeholder = "Cod incorect — încearcă din nou"; inp.focus(); }
+      }
+      document.getElementById("unlock-btn").addEventListener("click", tryUnlock);
+      inp.addEventListener("keydown", function (e) { if (e.key === "Enter") tryUnlock(); });
+    }
+  }
+
+  function renderDrive() {
+    var admin = ArdAdmin.isAdmin();
+    driveCard.classList.toggle("muted-card", !admin);
+    if (!admin) { driveBody.innerHTML = '<span class="state off">Deblochează întâi modul administrator</span>'; return; }
+
+    if (!ArdDrive.configured()) {
+      driveBody.innerHTML =
+        '<span class="state off">Neconfigurat</span>' +
+        '<div class="note">Pentru activare e nevoie de un <b>OAuth Client ID</b> (din Google Cloud) adăugat în aplicație, iar conectarea funcționează doar pe <b>site-ul publicat</b> (github.io), nu în preview. Trimite-mi Client ID-ul și îl activez.</div>';
+      return;
+    }
+    if (ArdDrive.connected()) {
+      driveBody.innerHTML =
+        '<span class="state on">' + CHECK + ' Conectat la Google Drive</span>' +
+        '<div class="row"><button class="btn ghost" id="disc-btn">Deconectează</button></div>' +
+        '<div class="note">Urcarea documentelor unui medic în Drive se face din pagina <b>Dosar medic</b> → butonul „Salvează în Drive".</div>';
+      document.getElementById("disc-btn").addEventListener("click", function () { ArdDrive.disconnect(); });
+    } else {
+      driveBody.innerHTML =
+        '<span class="state off">Neconectat</span>' +
+        '<div class="row"><button class="btn" id="conn-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12.7 16.8 3.6a1 1 0 0 0-.86-.5H8.06a1 1 0 0 0-.86.5"></path><path d="M2 12.7 7.2 3.6"></path><path d="m7.2 20.9 5.2-8.2H22"></path><path d="M2 12.7h10.4L7.2 20.9"></path></svg>Conectează Google Drive</button></div>';
+      document.getElementById("conn-btn").addEventListener("click", function () { ArdDrive.connect().catch(function () {}); });
+    }
+  }
+
+  function renderAll() { renderAuth(); renderDrive(); }
+  if (window.ArdDrive) ArdDrive.onChange(renderDrive);
+  renderAll();
+})();
+</script>
+</body></html>
