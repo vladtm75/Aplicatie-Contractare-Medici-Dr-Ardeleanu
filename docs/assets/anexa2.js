@@ -12,6 +12,9 @@
    ============================================================ */
 (function () {
   "use strict";
+  // Mobile pages are read-only/informative: keep loading the current annex's
+  // data (so the document shows content) but hide the management bar.
+  var IS_MOBILE = !!document.querySelector("header.m-top");
   var KEY_FILL = "ardeleanu_anexa2_fill_v1";
   var KEY_ROL  = "ardeleanu_anexa2_rol_sel_v1";
   var LIST     = "ardeleanu_anexa2_instances";
@@ -54,6 +57,7 @@
   function build() {
     var mount = document.getElementById("anexa2-bar");
     if (!mount) return;
+    if (IS_MOBILE) { mount.style.display = "none"; return; }
     mount.innerHTML = "";
 
     var lbl = document.createElement("span"); lbl.className = "lbl"; lbl.textContent = "Anexă de amortizare"; mount.appendChild(lbl);

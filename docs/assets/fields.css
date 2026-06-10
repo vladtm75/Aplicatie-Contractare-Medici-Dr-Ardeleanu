@@ -55,6 +55,12 @@
 body.no-hl .fill:not(.filled) { background: transparent; box-shadow: inset 0 -1px 0 var(--blank); }
 body.no-hl .fill:not(.filled)::before { color: var(--blank); }
 
+/* read-only documents (mobile) — blanks are informative, not fillable:
+   neutral underline, muted label, no amber "fill me" cue, no text cursor. */
+body.doc-readonly .fill { cursor: default; }
+body.doc-readonly .fill:not(.filled) { background: transparent; box-shadow: inset 0 -1px 0 var(--blank); color: transparent; }
+body.doc-readonly .fill:not(.filled)::before { color: var(--blank); font-style: normal; }
+
 /* toolbar */
 #doctools {
   position: fixed; right: 22px; bottom: 22px; z-index: 55;

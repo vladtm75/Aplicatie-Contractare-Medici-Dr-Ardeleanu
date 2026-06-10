@@ -15,6 +15,11 @@ function ardStoreKey(base){ return ARD_NS ? ("ardeleanu_" + ARD_NS + "_" + base)
   var article = document.querySelector(".article");
   if (!article) return;
 
+  // On mobile, documents are read-only/informative — no fill toolbar (bottom buttons).
+  // Detect by the mobile header that only the "- Mobil" pages render.
+  var IS_MOBILE = !!document.querySelector("header.m-top");
+  if (IS_MOBILE && document.body) document.body.classList.add("doc-readonly");
+
   var STORE = ARD_NS ? ("ardeleanu_" + ARD_NS + "_fill_v1") : "ardeleanu_contract_fill_v1";
   var saved = {};
   try { saved = JSON.parse(localStorage.getItem(STORE) || "{}"); } catch (e) {}
@@ -79,7 +84,8 @@ function ardStoreKey(base){ return ARD_NS ? ("ardeleanu_" + ARD_NS + "_" + base)
         var after = text.slice(cursor + piece.length);
         var span = document.createElement("span");
         span.className = "fill";
-        span.setAttribute("contenteditable", "true");
+        // Mobile is read-only/informative — blanks are shown but not fillable.
+        span.setAttribute("contenteditable", IS_MOBILE ? "false" : "true");
         span.setAttribute("spellcheck", "false");
         span.setAttribute("data-fill", idx);
         span.setAttribute("data-label", labelFor(before, after));
@@ -155,7 +161,10 @@ function ardStoreKey(base){ return ARD_NS ? ("ardeleanu_" + ARD_NS + "_" + base)
       '<button id="dt-clear" title="Golește toate câmpurile">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>' +
     '</div>';
-  document.body.appendChild(tools);
+  // Desktop only: mobile pages are read-only, so the bottom toolbar is omitted.
+  // (Elements below are queried within `tools`, which works even when detached,
+  // so the rest of the script keeps running without the bar being shown.)
+  if (!IS_MOBILE) document.body.appendChild(tools);
 
   var elFilled = tools.querySelector("#dt-filled"),
       elTotal = tools.querySelector("#dt-total"),
