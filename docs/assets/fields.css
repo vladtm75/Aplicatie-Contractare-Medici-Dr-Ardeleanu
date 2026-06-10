@@ -61,6 +61,34 @@ body.doc-readonly .fill { cursor: default; }
 body.doc-readonly .fill:not(.filled) { background: transparent; box-shadow: inset 0 -1px 0 var(--blank); color: transparent; }
 body.doc-readonly .fill:not(.filled)::before { color: var(--blank); font-style: normal; }
 
+/* Mobile read-only layout — key/value grids stack vertically so the value
+   column (long blanks) wraps instead of overflowing the viewport. Leaves
+   Anexa 1's multi-column data grids (table.grila.selectable) untouched. */
+body.doc-readonly table.grila:not(.selectable),
+body.doc-readonly table.grila:not(.selectable) tbody,
+body.doc-readonly table.grila:not(.selectable) tr,
+body.doc-readonly table.grila:not(.selectable) td {
+  display: block;
+  width: 100%;
+}
+body.doc-readonly table.grila:not(.selectable) tr {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--rule);
+}
+body.doc-readonly table.grila:not(.selectable) tr:last-child { border-bottom: 0; }
+body.doc-readonly table.grila:not(.selectable) td { padding: 0; border-bottom: 0; }
+body.doc-readonly table.grila:not(.selectable) td:first-child {
+  font-weight: 700; margin-bottom: 3px;
+}
+body.doc-readonly table.grila:not(.selectable) td:last-child {
+  text-align: left;           /* was right */
+  white-space: normal;        /* was nowrap — let long values wrap */
+  font-weight: 600; color: var(--oxblood-dark);
+}
+/* radio cells (e.g. „Tip") stack instead of running off-screen */
+body.doc-readonly .role-cell { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+body.doc-readonly .role-cell .rol-opt { margin: 0; }
+
 /* toolbar */
 #doctools {
   position: fixed; right: 22px; bottom: 22px; z-index: 55;
