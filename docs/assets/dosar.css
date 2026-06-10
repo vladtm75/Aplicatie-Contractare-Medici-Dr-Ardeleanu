@@ -271,7 +271,10 @@ body{
 .m-top .m-brand .bs{ font-family:var(--sans); font-size:10.5px; letter-spacing:.04em; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 .m-shell{ max-width:680px; margin:0 auto; padding:22px 18px 100px; }
-.m-shell .doc-title{ font-size:clamp(24px,7vw,30px); }
+.m-shell .doc-head{ margin-bottom:14px; }
+.m-shell .doc-kicker{ font-size:10.5px; margin-bottom:7px; }
+.m-shell .doc-title{ font-size:clamp(19px,5.4vw,23px); line-height:1.18; }
+.m-shell .doc-sub{ font-size:13.5px; margin-top:8px; }
 /* on phones the dossier bar + summary stack comfortably */
 @media (max-width:620px){
   .dossier-bar select{ min-width:0; flex:1; }

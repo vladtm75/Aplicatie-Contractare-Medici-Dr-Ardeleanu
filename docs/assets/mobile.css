@@ -134,10 +134,10 @@ body.m-search-open .m-searchrow { max-height: 70px; }
 }
 
 /* Title block — tighter top, larger breathing room */
-.doc-head { padding: 30px 0 22px; }
-.doc-title { font-size: clamp(27px, 8vw, 34px); line-height: 1.1; }
-.doc-kicker { font-size: 11px; }
-.doc-sub { font-size: 15px; }
+.doc-head { padding: 16px 0 14px; }
+.doc-title { font-size: clamp(19px, 5.4vw, 23px); line-height: 1.18; margin: 0 0 8px; }
+.doc-kicker { font-size: 10.5px; }
+.doc-sub { font-size: 13.5px; }
 
 /* Chapters */
 .chapter { padding-top: 26px; scroll-margin-top: calc(var(--m-top-h) + 14px); }
