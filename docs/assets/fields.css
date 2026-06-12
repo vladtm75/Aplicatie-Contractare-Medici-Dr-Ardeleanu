@@ -61,6 +61,26 @@ body.doc-readonly .fill { cursor: default; }
 body.doc-readonly .fill:not(.filled) { background: transparent; box-shadow: inset 0 -1px 0 var(--blank); color: transparent; }
 body.doc-readonly .fill:not(.filled)::before { color: var(--blank); font-style: normal; }
 
+/* desktop "view-only" (non-admin) — same neutral, non-fillable blanks as the
+   read-only mobile view, but WITHOUT the mobile table-stacking layout. Only the
+   administrator can fill / print / save; everyone else reads the model. */
+body.view-only .fill { cursor: default; }
+body.view-only .fill:not(.filled) { background: transparent; box-shadow: inset 0 -1px 0 var(--blank); color: transparent; }
+body.view-only .fill:not(.filled)::before { color: var(--blank); font-style: normal; }
+
+/* slim notice shown to non-admin desktop visitors */
+.viewonly-note {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-family: var(--sans); font-size: 13.5px; line-height: 1.5; color: var(--ink-soft);
+  background: #fbf7f2; border: 1px dashed var(--tint-line); border-radius: 10px;
+  padding: 12px 15px; margin: 0 0 22px;
+}
+.viewonly-note svg { width: 18px; height: 18px; color: var(--oxblood-soft); flex: 0 0 auto; margin-top: 1px; }
+.viewonly-note b { color: var(--oxblood); font-weight: 700; }
+.viewonly-note a { color: var(--oxblood); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--tint-line); white-space: nowrap; }
+.viewonly-note a:hover { border-bottom-color: var(--oxblood-soft); }
+@media print { .viewonly-note { display: none !important; } }
+
 /* Mobile read-only layout — key/value grids stack vertically so the value
    column (long blanks) wraps instead of overflowing the viewport. Leaves
    Anexa 1's multi-column data grids (table.grila.selectable) untouched. */

@@ -18,15 +18,19 @@
 
   window.ArdAdmin = { isAdmin: isAdmin, setAdmin: setAdmin, check: check, KEY: KEY };
 
-  /* ---- gard Anexa 1 (fără buton flotant; modul admin se setează din Panou) ---- */
-  function applyAnexa1Gate() {
-    if (!document.getElementById("anexa-1")) return;
+  /* ---- stare admin la nivel de document (modul admin se setează din Panou) ----
+     Setează body.admin-on pe ORICE pagină, ca documentele să poată fi
+     editabile/tipăribile doar de administrator. Gardul specific Anexei 1
+     (vizibilitatea grilei și a tipurilor de remunerare) rămâne în plus. */
+  function applyAdminState() {
     var a = isAdmin();
-    document.body.classList.toggle("admin-on", a);
-    document.body.classList.toggle("has-remun", document.querySelectorAll(".remun-section:not(.remun-off)").length > 0);
-    if (!a) { var an = document.getElementById("anexa-1"); if (an) an.classList.remove("grid-editing"); }
+    if (document.body) document.body.classList.toggle("admin-on", a);
+    if (document.getElementById("anexa-1")) {
+      document.body.classList.toggle("has-remun", document.querySelectorAll(".remun-section:not(.remun-off)").length > 0);
+      if (!a) { var an = document.getElementById("anexa-1"); if (an) an.classList.remove("grid-editing"); }
+    }
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", applyAnexa1Gate);
-  else applyAnexa1Gate();
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", applyAdminState);
+  else applyAdminState();
 })();

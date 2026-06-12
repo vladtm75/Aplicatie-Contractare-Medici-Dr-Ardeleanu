@@ -18,7 +18,32 @@ function ardStoreKey(base){ return ARD_NS ? ("ardeleanu_" + ARD_NS + "_" + base)
   // On mobile, documents are read-only/informative — no fill toolbar (bottom buttons).
   // Detect by the mobile header that only the "- Mobil" pages render.
   var IS_MOBILE = !!document.querySelector("header.m-top");
-  if (IS_MOBILE && document.body) document.body.classList.add("doc-readonly");
+
+  // Admin gate: on desktop, only the administrator can fill in / print / save the
+  // documents. Everyone can READ the model (free viewing). The Dosar medic page does
+  // not load this script, so it stays freely editable (doctors upload there).
+  var IS_ADMIN = !!(window.ArdAdmin && window.ArdAdmin.isAdmin && window.ArdAdmin.isAdmin());
+  // Read-only when: mobile (informative) OR desktop visitor that is not the admin.
+  var READONLY = IS_MOBILE || !IS_ADMIN;
+
+  if (document.body) {
+    // Mobile keeps its dedicated stacked layout; desktop visitors get a light
+    // "view-only" treatment (blanks shown, not editable) without the mobile layout.
+    if (IS_MOBILE) document.body.classList.add("doc-readonly");
+    else if (READONLY) document.body.classList.add("view-only");
+  }
+
+  // Desktop visitor (not admin): show a slim notice that this is a read-only model
+  // and only the administrator can fill it in / print / save it.
+  if (!IS_MOBILE && !IS_ADMIN) {
+    var notice = document.createElement("div");
+    notice.className = "viewonly-note";
+    notice.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>' +
+      '<span>Vizualizare model — doar <b>administratorul</b> poate completa, tipări sau salva acest document. ' +
+      '<a href="Administrator.html">Deschide Panoul administrator →</a></span>';
+    article.insertBefore(notice, article.firstChild);
+  }
 
   var STORE = ARD_NS ? ("ardeleanu_" + ARD_NS + "_fill_v1") : "ardeleanu_contract_fill_v1";
   var saved = {};
@@ -84,8 +109,8 @@ function ardStoreKey(base){ return ARD_NS ? ("ardeleanu_" + ARD_NS + "_" + base)
         var after = text.slice(cursor + piece.length);
         var span = document.createElement("span");
         span.className = "fill";
-        // Mobile is read-only/informative — blanks are shown but not fillable.
-        span.setAttribute("contenteditable", IS_MOBILE ? "false" : "true");
+        // Read-only (mobile, or desktop non-admin) — blanks are shown but not fillable.
+        span.setAttribute("contenteditable", READONLY ? "false" : "true");
         span.setAttribute("spellcheck", "false");
         span.setAttribute("data-fill", idx);
         span.setAttribute("data-label", labelFor(before, after));
@@ -108,7 +133,7 @@ function ardStoreKey(base){ return ARD_NS ? ("ardeleanu_" + ARD_NS + "_" + base)
   function flashSaved() {
     if (!savedEl) return;
     savedEl.classList.add("on");
-    savedEl.textContent = "Salvat automat ✓";
+    savedEl.textContent = "Salvat local ✓";
     clearTimeout(savedTimer);
     savedTimer = setTimeout(function () { savedEl.classList.remove("on"); }, 1600);
   }
@@ -154,17 +179,18 @@ function ardStoreKey(base){ return ARD_NS ? ("ardeleanu_" + ARD_NS + "_" + base)
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>Următorul</button>' +
       '<button id="dt-print" title="Tipărește / Salvează PDF">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>' +
-      '<button id="dt-save" title="Salvează o copie de siguranță (fișier)">' +
+      '<button id="dt-save" title="Salvează datele completate ca fișier de rezervă (.json) — nu documentul. Pentru document folosește Print → PDF.">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></button>' +
-      '<button id="dt-restore" title="Restaurează dintr-o copie salvată">' +
+      '<button id="dt-restore" title="Încarcă datele dintr-un fișier de rezervă (.json) salvat anterior">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>' +
       '<button id="dt-clear" title="Golește toate câmpurile">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>' +
     '</div>';
-  // Desktop only: mobile pages are read-only, so the bottom toolbar is omitted.
+  // Admin only: read-only views (mobile, or desktop non-admin) omit the bottom
+  // toolbar, so only the administrator can fill / print / save.
   // (Elements below are queried within `tools`, which works even when detached,
   // so the rest of the script keeps running without the bar being shown.)
-  if (!IS_MOBILE) document.body.appendChild(tools);
+  if (!READONLY) document.body.appendChild(tools);
 
   var elFilled = tools.querySelector("#dt-filled"),
       elTotal = tools.querySelector("#dt-total"),
@@ -218,7 +244,7 @@ function ardStoreKey(base){ return ARD_NS ? ("ardeleanu_" + ARD_NS + "_" + base)
     a.href = url; a.download = backupName();
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-    if (savedEl) { savedEl.classList.add("on"); savedEl.textContent = "Copie descărcată ✓"; clearTimeout(savedTimer); savedTimer = setTimeout(function () { savedEl.classList.remove("on"); }, 2200); }
+    if (savedEl) { savedEl.classList.add("on"); savedEl.textContent = "Copie locală descărcată ✓"; clearTimeout(savedTimer); savedTimer = setTimeout(function () { savedEl.classList.remove("on"); }, 2200); }
   }
   // filename: "<doc> — Ardeleanu & <medic> — <data>.json"
   function fieldByLabel(label) {
