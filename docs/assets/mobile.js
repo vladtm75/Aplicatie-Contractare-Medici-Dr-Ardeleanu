@@ -338,7 +338,9 @@
     if (!sections.length) return;
     var saved = null;
     try { saved = JSON.parse(localStorage.getItem("ardeleanu_remun_sel_v1") || "null"); } catch (e) {}
-    var active = new Set(Array.isArray(saved) ? saved : ["a", "b", "c", "d"]);
+    // Confidentiality: with no admin selection, hide ALL rate sections by default
+    // (a doctor must not see commissions). Same default as the desktop fields.js.
+    var active = new Set(Array.isArray(saved) ? saved : []);
 
     // capture base titles (without the letter)
     sections.forEach(function (sec) {
