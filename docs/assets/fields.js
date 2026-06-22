@@ -520,11 +520,11 @@ function ardStoreKey(base){ return ARD_NS ? ("ardeleanu_" + ARD_NS + "_" + base)
     if (dt.kind === "dmy") return ("0" + dt.d).slice(-2) + "." + mm + "." + dt.y;
     return mm + "." + dt.y;
   }
-  function annexDateField() {
-    var sub = anexa2.querySelector(".annex-sub");
-    if (!sub) return null;
-    var fills = sub.querySelectorAll(".fill");
-    return fills.length >= 2 ? fills[1] : null;   // NR. <număr> / <data>
+  // Amortization runs from the COURSE date (data desfășurării cursului),
+  // not the annex date — the annex may be signed on a different day.
+  function courseStartField() {
+    var span = anexa2.querySelector('[data-course-start]');
+    return span ? span.querySelector(".fill") : null;
   }
   var startOut = document.getElementById("a2-start");
   var endOut = document.getElementById("a2-end");
@@ -545,9 +545,9 @@ function ardStoreKey(base){ return ARD_NS ? ("ardeleanu_" + ARD_NS + "_" + base)
     } else {
       out.textContent = "—";
     }
-    // start = annex date; end = start + (N − 1) months (last month of amortization)
+    // start = course date; end = start + (N − 1) months (last month of amortization)
     if (startOut && endOut) {
-      var adf = annexDateField();
+      var adf = courseStartField();
       var raw = adf ? adf.textContent.trim() : "";
       var sd = parseDate(raw);
       startOut.textContent = raw || "—";
@@ -562,7 +562,7 @@ function ardStoreKey(base){ return ARD_NS ? ("ardeleanu_" + ARD_NS + "_" + base)
     var f = c.querySelector(".fill");
     if (f) { f.addEventListener("input", recompute); f.addEventListener("blur", recompute); }
   });
-  var adf0 = annexDateField();
+  var adf0 = courseStartField();
   if (adf0) { adf0.addEventListener("input", recompute); adf0.addEventListener("blur", recompute); }
   Array.prototype.slice.call(anexa2.querySelectorAll('input[name="anexa2-mod"]')).forEach(function (r) {
     r.addEventListener("change", recompute);
@@ -605,5 +605,100 @@ function ardStoreKey(base){ return ARD_NS ? ("ardeleanu_" + ARD_NS + "_" + base)
     validate(f);
     f.addEventListener("input", function () { validate(f); });
     f.addEventListener("blur", function () { validate(f); });
+  });
+})();
+
+
+/* ============================================================
+   Beneficiary signature — uploaded by the administrator.
+   The scanned PNG/JPG of Dr. Virginia Ardeleanu's signature is
+   never embedded in the HTML; the administrator uploads it (once,
+   shared across all documents via a global key) before finalizing.
+   Shown on screen and in print; on read-only views it only displays
+   an already-stored signature, with no upload control.
+   ============================================================ */
+(function () {
+  "use strict";
+  var slots = Array.prototype.slice.call(document.querySelectorAll('.sig-slot[data-sig="beneficiar"]'));
+  if (!slots.length) return;
+
+  var IS_MOBILE = !!document.querySelector("header.m-top");
+  var IS_ADMIN = !!(window.ArdAdmin && window.ArdAdmin.isAdmin && window.ArdAdmin.isAdmin());
+  var CAN_EDIT = IS_ADMIN && !IS_MOBILE;
+  var SIG_KEY = "ardeleanu_sig_beneficiar_v1"; // global — same signature across all documents
+
+  if (!document.getElementById("sig-upload-style")) {
+    var st = document.createElement("style");
+    st.id = "sig-upload-style";
+    st.textContent =
+      ".sig-slot{display:inline-flex;align-items:flex-end;gap:10px;flex-wrap:wrap;}" +
+      ".sig-slot .sig-blank{letter-spacing:.5px;}" +
+      ".sig-slot img.sig-img{max-height:64px;max-width:240px;display:block;}" +
+      ".sig-upload-btn{font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;" +
+        "color:var(--oxblood);border:1px solid var(--tint-line);border-radius:7px;padding:5px 10px;background:var(--col);}" +
+      ".sig-upload-btn:hover{background:var(--tint);}" +
+      "@media print{.sig-upload-btn{display:none !important;}}";
+    document.head.appendChild(st);
+  }
+
+  function readSig() { try { return localStorage.getItem(SIG_KEY) || ""; } catch (e) { return ""; } }
+
+  slots.forEach(function (slot) {
+    var holder = document.createElement("span");
+    holder.className = "sig-holder";
+    slot.appendChild(holder);
+
+    function render() {
+      var data = readSig();
+      holder.innerHTML = "";
+      if (data) {
+        var img = document.createElement("img");
+        img.className = "sig-img";
+        img.alt = "Semnătura beneficiarului";
+        img.src = data;
+        holder.appendChild(img);
+      } else {
+        var blank = document.createElement("span");
+        blank.className = "sig-blank";
+        blank.textContent = "______________________";
+        holder.appendChild(blank);
+      }
+    }
+    render();
+
+    if (!CAN_EDIT) return;
+
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "sig-upload-btn";
+    function updLabel() { btn.textContent = readSig() ? "Schimbă semnătura" : "Încarcă semnătura"; }
+    updLabel();
+
+    var inp = document.createElement("input");
+    inp.type = "file";
+    inp.accept = "image/png,image/jpeg,image/*";
+    inp.style.display = "none";
+    inp.addEventListener("change", function () {
+      var f = inp.files && inp.files[0];
+      inp.value = "";
+      if (!f) return;
+      var r = new FileReader();
+      r.onload = function () {
+        try { localStorage.setItem(SIG_KEY, r.result); }
+        catch (e) { alert("Imaginea este prea mare pentru stocarea locală. Folosește un PNG mai mic."); return; }
+        render(); updLabel();
+      };
+      r.readAsDataURL(f);
+    });
+    btn.addEventListener("click", function () { inp.click(); });
+    btn.addEventListener("contextmenu", function (e) {
+      e.preventDefault();
+      if (readSig() && confirm("Ștergi semnătura încărcată?")) {
+        try { localStorage.removeItem(SIG_KEY); } catch (ex) {}
+        render(); updLabel();
+      }
+    });
+    slot.appendChild(btn);
+    slot.appendChild(inp);
   });
 })();

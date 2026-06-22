@@ -130,7 +130,7 @@
 <tr><td>Denumirea cursului</td><td>_______________________________</td></tr>
 <tr><td>Tip</td><td class="role-cell"><label class="rol-opt"><input type="radio" name="anexa2-tip" class="rol-pick" value="intern"><span>intern (Centrul de Training Dr. Ardeleanu)</span></label><label class="rol-opt"><input type="radio" name="anexa2-tip" class="rol-pick" value="extern"><span>extern</span></label></td></tr>
 <tr><td>Furnizor / lector</td><td>_______________________________</td></tr>
-<tr><td>Perioada cursului</td><td>de la <span data-fmt="date">____________</span> până la <span data-fmt="date">____________</span></td></tr>
+<tr><td>Perioada cursului</td><td>de la <span data-fmt="date" data-course-start="1">____________</span> până la <span data-fmt="date">____________</span></td></tr>
 <tr><td>Credite EMC (dacă este cazul)</td><td>______</td></tr>
 </tbody>
 </table>
@@ -141,7 +141,7 @@
 <tr><td>Cost total al cursului</td><td>______ lei</td></tr>
 <tr><td><b>Suma suportată de Beneficiar (baza de amortizat)</b></td><td data-calc="base"><b>______ lei</b></td></tr>
 <tr><td>Perioada de amortizare</td><td data-calc="months">______ luni</td></tr>
-<tr><td>Amortizarea curge</td><td>de la <span id="a2-start" class="calc-date">—</span> <span class="calc-hint">(data anexei)</span> până la <span id="a2-end" class="calc-date">—</span> <span class="calc-hint">(automat)</span></td></tr>
+<tr><td>Amortizarea curge</td><td>de la <span id="a2-start" class="calc-date">—</span> <span class="calc-hint">(data cursului)</span> până la <span id="a2-end" class="calc-date">—</span> <span class="calc-hint">(automat)</span></td></tr>
 <tr class="calc-row"><td><span id="a2-monthly-label">Sumă pe lună</span> <span class="calc-hint">(calculat automat)</span></td><td><b><span id="a2-monthly">—</span> lei</b></td></tr>
 </tbody>
 </table>
@@ -151,7 +151,10 @@
 <div class="callout"><div class="ct">Formulă</div><p><b>Sumă neamortizată = baza × (luni rămase ÷ total luni).</b> Exemplu: 12.000 lei pe 24 de luni, plecare după 9 luni → 12.000 × (15 ÷ 24) = <b>7.500 lei</b>.</p></div>
 <p class="clinics-note">Suma reprezintă o investiție a Beneficiarului în formarea Prestatorului, recuperabilă în condițiile de mai sus, iar nu o remunerație în natură; nu aduce atingere independenței profesionale a Prestatorului și nu creează un raport de subordonare între Părți.</p>
 
-<div class="signatures"><div class="sig"><div class="role">BENEFICIAR</div><div class="line">REȚEAUA DE CLINICI DR. ARDELEANU</div><div class="line">Administrator</div><div class="line">Dr. Virginia Ardeleanu</div><div class="sign-on so-date">Data: ______________________</div><div class="sign-on">Semnătură: ______________________</div></div><div class="sig"><div class="role">PRESTATOR</div><div class="line">Administrator</div><div class="line">Dr. ______________________________</div><div class="sign-on so-date">Data: ______________________</div><div class="sign-on">Semnătură: ______________________</div></div></div>
+<h3 class="sub-h">5. Participare și retragere</h3>
+<p>Prin înscrierea la curs, medicul își asumă participarea la acesta. Retragerea comunicată cu mai puțin de 5 zile calendaristice înainte de începerea cursului sau neprezentarea atrage obligația de a suporta integral costul cursului. Contravaloarea acestuia va fi recuperată de beneficiar prin deducere din comisionul cuvenit prestatorului pentru serviciile prestate, începând cu luna următoare producerii evenimentului și până la acoperirea integrală a sumei datorate.</p>
+
+<div class="signatures"><div class="sig"><div class="role">BENEFICIAR</div><div class="line">REȚEAUA DE CLINICI DR. ARDELEANU</div><div class="line">Administrator</div><div class="line">Dr. Virginia Ardeleanu</div><div class="sign-on so-date">Data: ______________________</div><div class="sign-on">Semnătură: <span class="sig-slot" data-sig="beneficiar"></span></div></div><div class="sig"><div class="role">PRESTATOR</div><div class="line">Administrator</div><div class="line">Dr. ______________________________</div><div class="sign-on so-date">Data: ______________________</div><div class="sign-on">Semnătură: ______________________</div></div></div>
 
 <p class="disclaimer">Document-model, parte integrantă a contractului. Se completează și se semnează distinct pentru fiecare curs. Folosește „Anexă nouă" pentru un curs nou și „Salvează" pentru a păstra anexa curentă.</p>
 </section>
@@ -160,6 +163,6 @@
 </main>
 
 <script src="assets/anexa2.js"></script>
-<script src="assets/fields.js?v=6"></script>
+<script src="assets/fields.js?v=8"></script>
 <script src="assets/share.js"></script>
 </body></html>
