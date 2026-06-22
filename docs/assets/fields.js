@@ -637,11 +637,17 @@ function ardStoreKey(base){ return ARD_NS ? ("ardeleanu_" + ARD_NS + "_" + base)
       ".sig-upload-btn{font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;" +
         "color:var(--oxblood);border:1px solid var(--tint-line);border-radius:7px;padding:5px 10px;background:var(--col);}" +
       ".sig-upload-btn:hover{background:var(--tint);}" +
-      "@media print{.sig-upload-btn{display:none !important;}}";
+      ".sig-del-btn{font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;" +
+        "color:#a12a2a;border:1px solid var(--tint-line);border-radius:7px;padding:5px 10px;background:var(--col);}" +
+      ".sig-del-btn:hover{background:#fbeaea;border-color:#a12a2a;}" +
+      "@media print{.sig-upload-btn,.sig-del-btn{display:none !important;}}";
     document.head.appendChild(st);
   }
 
   function readSig() { try { return localStorage.getItem(SIG_KEY) || ""; } catch (e) { return ""; } }
+
+  var refreshers = [];
+  function refreshAll() { refreshers.forEach(function (fn) { fn(); }); }
 
   slots.forEach(function (slot) {
     var holder = document.createElement("span");
@@ -665,14 +671,26 @@ function ardStoreKey(base){ return ARD_NS ? ("ardeleanu_" + ARD_NS + "_" + base)
       }
     }
     render();
+    refreshers.push(render);
 
     if (!CAN_EDIT) return;
 
     var btn = document.createElement("button");
     btn.type = "button";
     btn.className = "sig-upload-btn";
-    function updLabel() { btn.textContent = readSig() ? "Schimbă semnătura" : "Încarcă semnătura"; }
-    updLabel();
+
+    var delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className = "sig-del-btn";
+    delBtn.textContent = "Șterge semnătura";
+
+    function updControls() {
+      var has = !!readSig();
+      btn.textContent = has ? "Schimbă semnătura" : "Încarcă semnătura";
+      delBtn.style.display = has ? "" : "none";
+    }
+    updControls();
+    refreshers.push(updControls);
 
     var inp = document.createElement("input");
     inp.type = "file";
@@ -686,19 +704,19 @@ function ardStoreKey(base){ return ARD_NS ? ("ardeleanu_" + ARD_NS + "_" + base)
       r.onload = function () {
         try { localStorage.setItem(SIG_KEY, r.result); }
         catch (e) { alert("Imaginea este prea mare pentru stocarea locală. Folosește un PNG mai mic."); return; }
-        render(); updLabel();
+        refreshAll();
       };
       r.readAsDataURL(f);
     });
     btn.addEventListener("click", function () { inp.click(); });
-    btn.addEventListener("contextmenu", function (e) {
-      e.preventDefault();
+    delBtn.addEventListener("click", function () {
       if (readSig() && confirm("Ștergi semnătura încărcată?")) {
         try { localStorage.removeItem(SIG_KEY); } catch (ex) {}
-        render(); updLabel();
+        refreshAll();
       }
     });
     slot.appendChild(btn);
+    slot.appendChild(delBtn);
     slot.appendChild(inp);
   });
 })();
