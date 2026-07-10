@@ -213,4 +213,31 @@
     ];
     var bDesk = document.getElementById("mode-desktop");
     var bMob  = document.getElementById("mode-mobil");
-    var hint  = document.getElementById("mode
+    var hint  = document.getElementById("mode-hint");
+
+    function detect(){
+      try { var s = localStorage.getItem(KEY); if (s === "desktop" || s === "mobil") return s; } catch(e){}
+      return (window.matchMedia && window.matchMedia("(max-width: 768px)").matches) ? "mobil" : "desktop";
+    }
+
+    function apply(mode){
+      try { localStorage.setItem(KEY, mode); } catch(e){}
+      var isMob = mode === "mobil";
+      bDesk.classList.toggle("on", !isMob);
+      bMob.classList.toggle("on", isMob);
+      bDesk.setAttribute("aria-selected", String(!isMob));
+      bMob.setAttribute("aria-selected", String(isMob));
+      cards.forEach(function(c){
+        c.setAttribute("href", c.getAttribute(isMob ? "data-mobil" : "data-desktop"));
+      });
+      hint.innerHTML = isMob
+        ? "Vei deschide versiunile <b>pentru telefon</b>. Poți schimba oricând."
+        : "Vei deschide versiunile <b>pentru calculator</b>. Poți schimba oricând.";
+    }
+
+    bDesk.addEventListener("click", function(){ apply("desktop"); });
+    bMob.addEventListener("click", function(){ apply("mobil"); });
+    apply(detect());
+  })();
+</script>
+</body></html>
