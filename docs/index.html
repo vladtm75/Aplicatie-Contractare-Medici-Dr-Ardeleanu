@@ -184,6 +184,15 @@
         </span>
         <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
       </a>
+
+      <a class="card" id="card-incetare" data-desktop="Model Incetare Contract.html" data-mobil="Model Incetare Contract - Mobil.html">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9.5" y1="12.5" x2="14.5" y2="17.5"></line><line x1="14.5" y1="12.5" x2="9.5" y2="17.5"></line></svg></span>
+        <span class="body">
+          <h2>Model încetare — contractul existent</h2>
+          <p>Acord simplu de încetare a contractului aflat în vigoare. Se semnează întâi încetarea, apoi contractul nou din secțiunea de mai sus.</p>
+        </span>
+        <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+      </a>
     </div>
   </div>
 
@@ -199,35 +208,9 @@
       document.getElementById("card-anexa1"),
       document.getElementById("card-anexa2"),
       document.getElementById("card-acord"),
-      document.getElementById("card-dosar")
+      document.getElementById("card-dosar"),
+      document.getElementById("card-incetare")
     ];
     var bDesk = document.getElementById("mode-desktop");
     var bMob  = document.getElementById("mode-mobil");
-    var hint  = document.getElementById("mode-hint");
-
-    function detect(){
-      try { var s = localStorage.getItem(KEY); if (s === "desktop" || s === "mobil") return s; } catch(e){}
-      return (window.matchMedia && window.matchMedia("(max-width: 768px)").matches) ? "mobil" : "desktop";
-    }
-
-    function apply(mode){
-      try { localStorage.setItem(KEY, mode); } catch(e){}
-      var isMob = mode === "mobil";
-      bDesk.classList.toggle("on", !isMob);
-      bMob.classList.toggle("on", isMob);
-      bDesk.setAttribute("aria-selected", String(!isMob));
-      bMob.setAttribute("aria-selected", String(isMob));
-      cards.forEach(function(c){
-        c.setAttribute("href", c.getAttribute(isMob ? "data-mobil" : "data-desktop"));
-      });
-      hint.innerHTML = isMob
-        ? "Vei deschide versiunile <b>pentru telefon</b>. Poți schimba oricând."
-        : "Vei deschide versiunile <b>pentru calculator</b>. Poți schimba oricând.";
-    }
-
-    bDesk.addEventListener("click", function(){ apply("desktop"); });
-    bMob.addEventListener("click", function(){ apply("mobil"); });
-    apply(detect());
-  })();
-</script>
-</body></html>
+    var hint  = document.getElementById("mode
